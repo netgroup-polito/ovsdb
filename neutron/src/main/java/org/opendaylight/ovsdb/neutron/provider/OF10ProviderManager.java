@@ -721,26 +721,22 @@ class OF10ProviderManager extends ProviderNetworkManager {
         this.initializeLLDPFlowRules(openflowNode);
     }
 
-    private void initializeNormalFlowRules(Node ofNode) {
-        /* 
+    private void initializeNormalFlowRules(Node ofNode) {/*
          * Added by Marco to avoid programming the NORMAL flow inside the integration bridge
          * It simply looks at the interfaces name of this ofNode and if one of them is called
          * like the integration bridge this means that we are dealing with it.
-       
         ISwitchManager switchManager = (ISwitchManager) ServiceHelper.getInstance(ISwitchManager.class, "default", this);
         Set<NodeConnector> ports = switchManager.getNodeConnectors(ofNode);
         for(NodeConnector nc : ports){
             Property prop = switchManager.getNodeConnectorProp(nc, "name");
-            if (prop == null) 
-                continue; 
+            if (prop == null)
+                continue;
             if (prop.getStringValue().equals(AdminConfigManager.getManager().getIntegrationBridgeName())){
                 logger.info("NORMAL flow installation skipped for br-int, Node:{}",nc.toString());
                 initializeDropFlowRules(ofNode);
                 return;
             }
-        }
-        //end of modification 
-         */
+        }//end of modification*/
         String flowName = ActionType.HW_PATH.toString();
         FlowConfig flow = new FlowConfig();
         flow.setName("NORMAL");
@@ -753,9 +749,7 @@ class OF10ProviderManager extends ProviderNetworkManager {
         Status status = this.addStaticFlow(ofNode, flow);
         logger.debug("Flow Programming Add Status {} for Flow {} on {}", status, flow, ofNode);
     }
-    
     /* Added by Marco to insert a drop flow into the integration bridge
-      
     private void initializeDropFlowRules(Node ofNode) {
          String flowName = "STATIC_drop";
          FlowConfig flow = new FlowConfig();
@@ -768,9 +762,7 @@ class OF10ProviderManager extends ProviderNetworkManager {
          flow.setActions(dropAction);
          Status status = this.addStaticFlow(ofNode, flow);
          logger.debug("Flow Programming Add Status {} for Flow {} on {}", status, flow, ofNode);
-        
     }*/
-
     private void initializeLLDPFlowRules(Node ofNode) {
         String flowName = "PuntLLDP";
         List<String> puntAction = new ArrayList<String>();

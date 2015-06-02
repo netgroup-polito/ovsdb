@@ -377,7 +377,6 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
                              new JsonRpcDecoder(1000000),
                              new StringEncoder(CharsetUtil.UTF_8),
                              new ExceptionHandler());
-                     
                      Node node = handleNewConnection(identifier, channel, ConnectionService.this);
                      logger.debug("Connected Node : "+node.toString());
                  }
