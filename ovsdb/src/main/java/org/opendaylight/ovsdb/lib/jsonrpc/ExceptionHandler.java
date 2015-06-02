@@ -13,14 +13,25 @@ import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.TooLongFrameException;
 
-public class ExceptionHandler extends ChannelHandlerAdapter {
+import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class ExceptionHandler extends ChannelHandlerAdapter {
+    protected static final Logger logger = LoggerFactory.getLogger(ExceptionHandler.class);
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if ((cause instanceof InvalidEncodingException)
                 || (cause instanceof TooLongFrameException)) {
 
             ctx.channel().disconnect();
+        }
+        /* In cases where a connection is quickly established and the closed
+        Catch the IOException and close the channel
+         */
+        if (cause instanceof IOException){
+            logger.info("Exception handler called, closing connection {}",ctx.channel());
+            ctx.channel().close();
         }
     }
 }

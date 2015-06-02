@@ -62,6 +62,7 @@ import org.opendaylight.ovsdb.lib.table.Controller;
 import org.opendaylight.ovsdb.lib.table.Open_vSwitch;
 import org.opendaylight.ovsdb.lib.table.internal.Table;
 import org.opendaylight.ovsdb.lib.table.internal.Tables;
+import org.opendaylight.ovsdb.lib.jsonrpc.ExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,8 +195,9 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
                     if (handlers == null) {
                         channel.pipeline().addLast(
                                 //new LoggingHandler(LogLevel.INFO),
-                                new JsonRpcDecoder(100000),
-                                new StringEncoder(CharsetUtil.UTF_8));
+                                new JsonRpcDecoder(1000000),
+                                new StringEncoder(CharsetUtil.UTF_8),
+                                new ExceptionHandler());
                     } else {
                         for (ChannelHandler handler : handlers) {
                             channel.pipeline().addLast(handler);
@@ -277,6 +279,7 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
             @Override
             public void run() {
                 try {
+                    logger.info("New node connected {}", connection.getNode());
                     initializeInventoryForNewNode(connection);
                 } catch (InterruptedException | ExecutionException e) {
                     logger.error("Failed to initialize inventory for node with identifier " + identifier, e);
@@ -337,6 +340,9 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
         this.update(connection.getNode(), monitor);
         if (autoConfigureController) {
             this.updateOFControllers(connection.getNode());
+            logger.info("Configuring controller for node {}", connection.getNode());
+        }else{
+            logger.info("NOT Configuring controller for node {}", connection.getNode());
         }
         inventoryServiceInternal.notifyNodeAdded(connection.getNode());
     }
@@ -368,9 +374,10 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
                      String identifier = address.getHostAddress()+":"+port;
                      channel.pipeline().addLast(
                              new LoggingHandler(LogLevel.INFO),
-                             new JsonRpcDecoder(100000),
-                             new StringEncoder(CharsetUtil.UTF_8));
-
+                             new JsonRpcDecoder(1000000),
+                             new StringEncoder(CharsetUtil.UTF_8),
+                             new ExceptionHandler());
+                     
                      Node node = handleNewConnection(identifier, channel, ConnectionService.this);
                      logger.debug("Connected Node : "+node.toString());
                  }

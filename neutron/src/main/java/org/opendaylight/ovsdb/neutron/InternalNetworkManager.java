@@ -166,6 +166,7 @@ public class InternalNetworkManager {
         }
 
         IConnectionServiceInternal connectionService = (IConnectionServiceInternal)ServiceHelper.getGlobalInstance(IConnectionServiceInternal.class, this);
+        logger.info("Setting Controller on node {} for the first time", node);
         connectionService.setOFController(node, bridgeUUID);
 
         if (localPathName != null && remotePatchName != null && ProviderNetworkManager.getManager().hasPerTenantTunneling()) {

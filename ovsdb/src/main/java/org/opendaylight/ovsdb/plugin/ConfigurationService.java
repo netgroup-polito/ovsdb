@@ -253,6 +253,7 @@ public class ConfigurationService implements IPluginInBridgeDomainConfigService,
                 status = new Status(StatusCode.BADREQUEST, result.getError() + " : " + result.getDetails());
             }
             if (status.isSuccess()) {
+                logger.info("Setting controller for node {}, from the method createBridgeDomain", node);
                 setBridgeOFController(node, bridgeIdentifier);
             }
             return status;
