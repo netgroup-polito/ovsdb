@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
@@ -294,6 +295,20 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
         }.initializeConnectionParams(identifier, connection).start();
         return node;
     }
+    /*
+     * Clean all the OVSDB connection opened for the specified IP address
+     */
+    public void cleanOldConnections(String address){
+        logger.info("Cleaning old OVSDB connections for IP:"+ address);
+        for (String id: ovsdbConnections.keySet()){
+            StringTokenizer strTkn = new StringTokenizer(id, ":");
+            if (address.equals(strTkn.nextToken())){
+                Connection conn = ovsdbConnections.get(id);
+                logger.info("Connection "+conn.getIdentifier()+" cleaned");
+                conn.disconnect();
+            }
+        }
+    }
 
     public void channelClosed(Node node) throws Exception {
         logger.info("Connection to Node : {} closed", node);
@@ -377,8 +392,10 @@ public class ConnectionService implements IPluginInConnectionService, IConnectio
                              new JsonRpcDecoder(1000000),
                              new StringEncoder(CharsetUtil.UTF_8),
                              new ExceptionHandler());
+                     // Remove all the "old" connection (that may be still opened) from the same IP address
+                     cleanOldConnections(address.getHostAddress());
                      Node node = handleNewConnection(identifier, channel, ConnectionService.this);
-                     logger.debug("Connected Node : "+node.toString());
+                     logger.info("Connected Node : "+node.toString());
                  }
              });
             b.option(ChannelOption.TCP_NODELAY, true);
